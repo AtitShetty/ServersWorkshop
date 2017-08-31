@@ -21,6 +21,11 @@ var client =
 		needle.get("https://api.digitalocean.com/v2/regions", {headers:headers}, onResponse)
 	},
 
+	listImages: function( region, onResponse )
+	{
+		needle.get("https://api.digitalocean.com/v2/images?regions="+region, {headers:headers}, onResponse)
+	},
+///v2/droplets/$DROPLET_ID
 	createDroplet: function (dropletName, region, imageName, onResponse)
 	{
 		var data = 
@@ -41,6 +46,14 @@ var client =
 		console.log("Attempting to create: "+ JSON.stringify(data) );
 
 		needle.post("https://api.digitalocean.com/v2/droplets", data, {headers:headers,json:true}, onResponse );
+	},
+
+	getIPAddress: function (dropletID, onResponse) {
+		needle.get("https://api.digitalocean.com/v2/droplets/"+dropletID, {headers:headers}, onResponse)
+	},
+
+	deleteDroplet: function (dropletID, onResponse) {
+		needle.delete("https://api.digitalocean.com/v2/droplets/"+dropletID, null, {headers:headers}, onResponse)
 	}
 };
 
@@ -49,7 +62,7 @@ var client =
 // Comment out when completed.
 // https://developers.digitalocean.com/documentation/v2/#list-all-regions
 // use 'slug' property
-client.listRegions(function(error, response)
+/*client.listRegions(function(error, response)
 {
 	var data = response.body;
 	console.log( JSON.stringify(response.body) );
@@ -63,10 +76,10 @@ client.listRegions(function(error, response)
 	{
 		for(var i=0; i<data.regions.length; i++)
 		{
-	
+			console.log(data.regions[i].name);
 		}
 	}
-});
+});*/
 
 
 // #############################################
@@ -75,23 +88,40 @@ client.listRegions(function(error, response)
 // https://developers.digitalocean.com/documentation/v2/#images
 // - Print out a list of available system images, that are AVAILABLE in a specified region.
 // - use 'slug' property
+// client.listImages('nyc1', function(error,response){
+// 	var data = response.body;
+// console.log( JSON.stringify(response.body) );
 
+// if( response.headers )
+// {
+// 	console.log( "Calls remaining", response.headers["ratelimit-remaining"] );
+// }
+
+// if( data.images )
+// {
+// 	for(var i=0; i<data.images.length; i++)
+// 	{
+// 		console.log(data.images[i].slug);
+// 	}
+// }
+// });
+	
 // #############################################
 // #3 Create an droplet with the specified name, region, and image
 // Comment out when completed. ONLY RUN ONCE!!!!!
 // Write down/copy droplet id.
-// var name = "UnityId"+os.hostname();
-// var region = ""; // Fill one in from #1
-// var image = ""; // Fill one in from #2
-// client.createDroplet(name, region, image, function(err, resp, body)
-// {
-// 	console.log(body);
-// 	// StatusCode 202 - Means server accepted request.
-// 	if(!err && resp.statusCode == 202)
-// 	{
-// 		console.log( JSON.stringify( body, null, 3 ) );
-// 	}
-// });
+/*var name = "agarg12-akshetty"+os.hostname();
+var region = "nyc1"; // Fill one in from #1
+var image = "debian-7-0-x64"; // Fill one in from #2
+client.createDroplet(name, region, image, function(err, resp, body)
+{
+	console.log(body);
+	// StatusCode 202 - Means server accepted request.
+	if(!err && resp.statusCode == 202)
+	{
+		console.log( JSON.stringify( body, null, 3 ) );
+	}
+});*/
 
 // #############################################
 // #4 Extend the client to retrieve information about a specified droplet.
@@ -99,11 +129,19 @@ client.listRegions(function(error, response)
 // https://developers.digitalocean.com/documentation/v2/#retrieve-an-existing-droplet-by-id
 // REMEMBER POST != GET
 // Most importantly, print out IP address!
-var dropletId = "3788359";
-
+var dropletId = "60549620";
+/*client.getIPAddress(dropletId, function(err, resp, body)
+{
+	console.log(body.droplet.networks.v4);
+	// StatusCode 202 - Means server accepted request.
+	if(!err && resp.statusCode == 202)
+	{
+		console.log( JSON.stringify( body, null, 3 ) );
+	}
+});*/
 // #############################################
 // #5 In the command line, ping your server, make sure it is alive!
-// ping xx.xx.xx.xx
+// ping 165.227.86.2
 
 // #############################################
 // #6 Extend the client to DESTROY the specified droplet.
@@ -117,6 +155,16 @@ var dropletId = "3788359";
 // 	{
 //			console.log("Deleted!");
 // 	}
+
+client.deleteDroplet(dropletId, function(err, resp, body)
+{
+	console.log(body);
+	// StatusCode 202 - Means server accepted request.
+	if(!err && resp.statusCode == 204)
+	{
+		console.log( JSON.stringify( body, null, 3 ) );
+	}
+});
 
 // #############################################
 // #7 In the command line, ping your server, make sure it is dead!
